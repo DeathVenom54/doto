@@ -20,8 +20,13 @@ func main() {
 		log.Fatalf("Error while setting up logger:\n%s\n", err)
 	}
 
-	logger.Info("Listening for requests on :3000")
-	err = http.ListenAndServe(":3000", router.Router)
+	PORT := os.Getenv("PORT")
+	if PORT == "" {
+		logger.Fatalln("env PORT not found")
+	}
+
+	logger.Infof("Listening for requests on %s\n", PORT)
+	err = http.ListenAndServe(PORT, router.Router)
 	if err != nil {
 		logger.Fatalln(err)
 	}
