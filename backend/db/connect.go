@@ -1,29 +1,25 @@
 package db
 
 import (
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	logger "github.com/sirupsen/logrus"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"os"
 )
 
-var DB *sqlx.DB
+var DB *gorm.DB
 
-func init() {
+func Connect() error {
 	var err error
-	DB, err = Connect()
+	DB, err = gorm.Open(postgres.Open(os.Getenv("DB_CONN_STRING")), &gorm.Config{})
 	if err != nil {
-		logger.Fatalf("Error while connecting to db:\n%s\n", err)
-	}
-}
-
-func Connect() (*sqlx.DB, error) {
-	db, err := sqlx.Connect("postgres", os.Getenv("DB_CONN_STRING"))
-	if err != nil {
-		return nil, err
+		return err
 	}
 
-	db.MustExec(schema)
-	logger.Infoln("Connected to database")
-	return db, err
+	err = DB.AutoMigrate(&User{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
