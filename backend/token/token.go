@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/DeathVenom54/doto-backend/db"
 	"github.com/golang-jwt/jwt/v4"
+	"net/http"
 	"os"
 )
 
@@ -46,4 +47,18 @@ func CreateToken(claims *AuthClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 	return tokenString, err
+}
+
+func CreateJwtHttpOnlyCookie(claims *AuthClaims) (*http.Cookie, error) {
+	jwtToken, err := CreateToken(claims)
+	if err != nil {
+		return nil, err
+	}
+
+	cookie := http.Cookie{
+		Name:     "user",
+		Value:    jwtToken,
+		HttpOnly: true,
+	}
+	return &cookie, nil
 }
