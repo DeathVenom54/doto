@@ -19,6 +19,7 @@ func init() {
 	}
 
 	Router.Route("/api/doto", func(r chi.Router) {
+		r.Use(middleware.Logger)
 		r.Use(httprate.LimitAll(100, time.Minute))
 
 		r.Get("/", handlers.Index)
