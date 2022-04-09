@@ -33,3 +33,17 @@ func GetUserById(id uint) (*User, error) {
 
 	return user, res.Error
 }
+
+func VerifyUserPassword(user *User, providedPass string) (bool, *User) {
+	foundUser := &User{Username: user.Username, Email: user.Email}
+	res := DB.Where("username = ?", user.Username).Or("email = ?", user.Email).First(foundUser)
+	if res.Error != nil {
+		return false, nil
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(providedPass))
+	if err != nil {
+		return false, nil
+	}
+	return true, foundUser
+}
