@@ -12,7 +12,6 @@ import (
 )
 
 func Signup(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.RemoteAddr)
 	// check if already logged in
 	if alreadyLoggedIn := token.VerifyToken(r.Header.Get("user")); alreadyLoggedIn {
 		w.WriteHeader(200)
@@ -23,6 +22,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get user data from body
 	var userData db.User
 	err := json.NewDecoder(r.Body).Decode(&userData)
 	if err != nil {
@@ -49,17 +49,12 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		ID:       createdUser.ID,
 		Username: createdUser.Username,
 	}
-	jwtToken, err := token.CreateToken(claims)
+	cookie, err := token.CreateJwtHttpOnlyCookie(claims)
 	if err != nil {
 		handleError(err, w, http.StatusBadRequest)
 		return
 	}
-	cookie := http.Cookie{
-		Name:     "user",
-		Value:    jwtToken,
-		HttpOnly: true,
-	}
-	r.AddCookie(&cookie)
+	http.SetCookie(w, cookie)
 
 	_, err = w.Write([]byte("success"))
 	if err != nil {
