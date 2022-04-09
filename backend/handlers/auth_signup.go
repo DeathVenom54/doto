@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/DeathVenom54/doto-backend/db"
 	"github.com/DeathVenom54/doto-backend/token"
+	logger "github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"regexp"
@@ -58,7 +59,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 	_, err = w.Write([]byte("success"))
 	if err != nil {
-		log.Printf("Error while writing response at /auth/signup\n%s", err)
+		logger.Errorf("Error while writing response at /auth/signup\n%s\n", err)
 	}
 }
 
